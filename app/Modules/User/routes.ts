@@ -22,24 +22,12 @@ Route
 
 Route
   .group(() => {
-    Route
-      .get('/', (ctx) => new UserController().index(ctx))
-
-    Route
-      .post('/', (ctx) => new UserController().store(ctx))
-
-    Route
-      .get('/:id', (ctx) => new UserController().find(ctx))
-      .where('id', /^[0-9]+$/)
-
-    Route
-      .put('/:id', (ctx) => new UserController().update(ctx))
-      .where('id', /^[0-9]+$/)
-
-    Route
-      .delete('/:id', (ctx) => new UserController().destory(ctx))
-      .where('id', /^[0-9]+$/)
+    Route.get('/', (ctx) => new UserController().index(ctx))
+    Route.post('/', (ctx) => new UserController().store(ctx))
+    Route.get('/:id', (ctx) => new UserController().find(ctx))
+    Route.put('/:id', (ctx) => new UserController().update(ctx))
+    Route.delete('/:id', (ctx) => new UserController().destroy(ctx))
 
   })
   .prefix('/users')
-  .middleware(['auth'])
+  .middleware('auth')

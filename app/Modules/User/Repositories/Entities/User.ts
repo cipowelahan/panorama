@@ -1,6 +1,7 @@
-import { BaseModel, beforeSave, belongsTo, column, BelongsTo } from '@ioc:Adonis/Lucid/Orm';
-import { DateTime } from "luxon";
-import Hash from '@ioc:Adonis/Core/Hash';
+import { BaseModel, column, beforeSave, belongsTo, BelongsTo, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from "luxon"
+import Hash from '@ioc:Adonis/Core/Hash'
+import Role from 'App/Modules/Role/Repositories/Entities/Role'
 
 export default class User extends BaseModel {
   public static table = 'users'
@@ -16,6 +17,15 @@ export default class User extends BaseModel {
 
   @column({ serializeAs: null })
   public password: string
+
+  @manyToMany(() => Role, {
+    pivotTable: 'role_users',
+    localKey: 'id',
+    pivotForeignKey: 'user_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'role_id'
+  })
+  public roles: ManyToMany<typeof Role>
 
   @column({ serializeAs: null })
   public createdBy: number
