@@ -1,20 +1,15 @@
 import Route from '@ioc:Adonis/Core/Route'
-import PermissionController from './Controllers/PermissionController'
 
 Route
   .group(() => {
+    
+    Route
+      .resource('roles', 'RoleController')
+      .apiOnly()
 
+    Route
+      .resource('permissions', 'PermissionController')
+      .apiOnly()
   })
-  .prefix('roles')
-  .middleware('auth')
-
-Route
-  .group(() => {
-    Route.get('/', (ctx) => new PermissionController().index(ctx))
-    Route.post('/', (ctx) => new PermissionController().store(ctx))
-    Route.get('/:id', (ctx) => new PermissionController().find(ctx))
-    Route.put('/:id', (ctx) => new PermissionController().update(ctx))
-    Route.delete('/:id', (ctx) => new PermissionController().destroy(ctx))
-  })
-  .prefix('permissions')
+  .namespace('App/Modules/Role/Controllers')
   .middleware('auth')

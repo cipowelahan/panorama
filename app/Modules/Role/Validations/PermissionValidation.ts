@@ -9,7 +9,7 @@ export class PermissionValidation {
   constructor(private ctx: HttpContextContract) {}
 
   public schema = schema.create({
-    name: schema.string({ escape: true, trim: true }, [ rules.unique({ table: 'roles', column: 'name' }) ])
+    name: schema.string({ escape: true, trim: true }, [rules.unique({ table: 'permissions', column: 'name', whereNot: { id: this.ctx.params?.id || 0 } }) ])
   })
 
   public cacheKey = this.ctx.routeKey

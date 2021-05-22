@@ -21,7 +21,7 @@ export default class PermissionController {
     return ctx.response.sendData(permission) 
   }
 
-  public async find(ctx: HttpContextContract) {
+  public async show(ctx: HttpContextContract) {
     const permission = await this.repo.find(Number(ctx.params.id))
     return ctx.response.sendData(permission)
   }
