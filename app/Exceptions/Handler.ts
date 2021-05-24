@@ -39,6 +39,9 @@ export default class ExceptionHandler extends HttpExceptionHandler {
     else if (error.code === EXCEPTION_CODE.E_UNAUTHORIZED_ACCESS) {
       return response.sendError([], EXCEPTION_MESSAGE.E_UNAUTHORIZED_ACCESS, HTTP_CODE.UNAUTHORIZED)
     }
+    else if (error.code === EXCEPTION_CODE.E_FORBIDDEN_ACCESS) {
+      return response.sendError([], EXCEPTION_MESSAGE.E_FORBIDDEN_ACCESS, HTTP_CODE.FORBIDDEN)
+    }
     else if (error.code === EXCEPTION_CODE.E_NOTACCAPTABLE_ACCESS) {
       return response.sendError([], EXCEPTION_MESSAGE.E_NOTACCAPTABLE_ACCESS, HTTP_CODE.FORBIDDEN)
     }
