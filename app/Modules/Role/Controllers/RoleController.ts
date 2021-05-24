@@ -22,7 +22,7 @@ export default class RoleController {
   }
 
   public async show(ctx: HttpContextContract) {
-    const role = await this.repo.findWithPermissions(Number(ctx.params.id))
+    const role = await this.repo.find(Number(ctx.params.id), ctx.request.qs())
     return ctx.response.sendData(role)
   }
 

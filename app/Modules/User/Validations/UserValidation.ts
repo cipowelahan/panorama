@@ -5,6 +5,7 @@ export class UserStoreValidationDto {
   public name: string
   public email: string
   public password: string
+  public roles: Array<number>
 }
 
 export class UserStoreValidation {
@@ -13,7 +14,8 @@ export class UserStoreValidation {
   public schema = schema.create({
     name: schema.string({escape: true, trim: true }),
     email: schema.string({ escape: true, trim: true }, [ rules.email(), rules.unique({ table: 'users', column: 'email', where: { deleted_at: null }}) ]),
-    password: schema.string({}, [ rules.minLength(6), rules.maxLength(18) ])
+    password: schema.string({}, [ rules.minLength(6), rules.maxLength(18) ]),
+    roles: schema.array().members(schema.number([rules.exists({ table: 'roles', column: 'id' })]))
   })
 
   public cacheKey = this.ctx.routeKey
@@ -30,6 +32,7 @@ export class UserStoreValidation {
 
 export class UserUpdateValidationDto {
   public name: string
+  public roles: Array<number>
 }
 
 export class UserUpdateValidation {
@@ -37,6 +40,7 @@ export class UserUpdateValidation {
 
   public schema = schema.create({
     name: schema.string({escape: true, trim: true }),
+    roles: schema.array().members(schema.number([rules.exists({ table: 'roles', column: 'id' })]))
   })
 
   public cacheKey = this.ctx.routeKey

@@ -34,7 +34,7 @@ export default class User extends BaseModel {
   public updatedBy: number
 
   @column({ serializeAs: null })
-  public DeletedBy: number
+  public deletedBy: number
 
   @belongsTo(() => User, { foreignKey: 'created_by' })
   public creator: BelongsTo<typeof User>

@@ -1,24 +1,56 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { RoleValidationDto } from '../Validations/RoleValidation';
+import { RoleValidationDto } from '../Validations/RoleValidation'
+import { AuthenticationException } from '@adonisjs/auth/build/standalone'
+import { EXCEPTION_CODE, EXCEPTION_MESSAGE } from 'App/Constants/String'
 import Role from './Entities/Role'
 
 export default class RoleRepository {
   public async index({ request }: HttpContextContract) {
     const urlQuery = request.qs()
-    return await Role
+    const page = urlQuery.page || 1
+    const limit = urlQuery.limit || 10
+    const roles = Role
       .query()
       .if(urlQuery.search, (query) => {
         query.where('name', 'ilike', `%${urlQuery.search}%`)
       })
+      .if(urlQuery.with, (query) => {
+        const listWith = String(urlQuery.with).split(',')
+
+        if (listWith.includes('permissions')) {
+          query.preload('permissions')
+        }
+      })
       .orderBy('name', 'asc')
+
+    if (urlQuery.paginate == "false") {
+      return await roles
+    }
+
+    const paginate = await roles.paginate(page, limit)
+    paginate.baseUrl(request.url())
+    paginate.queryString(urlQuery)
+    return paginate
   }
 
-  public async find(id: number) {
-    return await Role.findOrFail(id)
-  }
+  public async find(id: number, urlQuery?: Record<string, any>): Promise<Role>{
+    const role = await Role
+      .query()
+      .where('id', id)
+      .if(urlQuery, (query) => {
+        const listWith = String(urlQuery?.with).split(',')
 
-  public async findWithPermissions(id: number) {
-    return await Role.query().preload('permissions').where('id', id)
+        if (listWith.includes('permissions')) {
+          query.preload('permissions')
+        }
+      })
+      .first()
+
+    if (!role) {
+      throw new AuthenticationException(EXCEPTION_MESSAGE.E_ROW_NOT_FOUND, EXCEPTION_CODE.E_ROW_NOT_FOUND)
+    }
+
+    return role
   }
 
   public async store(data: RoleValidationDto) {

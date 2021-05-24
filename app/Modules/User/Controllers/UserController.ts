@@ -15,8 +15,8 @@ export default class UserController {
     return ctx.response.sendData(users)
   }
 
-  public async find(ctx: HttpContextContract) {
-    const user = await this.repo.find(Number(ctx.params.id))
+  public async show(ctx: HttpContextContract) {
+    const user = await this.repo.find(Number(ctx.params.id), ctx.request.qs())
     return ctx.response.sendData(user)
   }
 

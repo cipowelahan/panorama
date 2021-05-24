@@ -10,7 +10,7 @@ export default class UserRepository {
     const urlQuery = request.qs()
     const page = urlQuery.page || 1
     const limit = urlQuery.limit || 10
-    const users = await User
+    const users = User
       .query()
       .whereNull('deleted_at')
       .if(urlQuery.search, (query) => {
@@ -20,41 +20,79 @@ export default class UserRepository {
               .orWhere('email', 'ilike', `%${urlQuery.search}%`)
         })
       })
+      .if(urlQuery.with, (query) => {
+        const listWith = String(urlQuery.with).split(',')
+
+        if (listWith.includes('roles')) {
+          query.preload('roles')
+        }
+        if (listWith.includes('modify')) {
+          query.preload('creator')
+            .preload('editor')
+            .preload('destroyer')
+        }
+      })
       .orderBy('created_at', 'desc')
-      .paginate(page, limit)
+
+    if (urlQuery.paginate == "false") {
+      return await users
+    }
     
-    users.baseUrl(request.url())
-    users.queryString(urlQuery)
-    return users
+    const paginate = await users.paginate(page, limit)
+    paginate.baseUrl(request.url())
+    paginate.queryString(urlQuery)
+    return paginate
   }
 
-  public async find(id: number) {
-    const user = await User.query().where('id', id).whereNull('deleted_at').first()
+  public async find(id: number, urlQuery?: Record<string, any>): Promise<User> {
+    const user = await User
+      .query()
+      .where('id', id)
+      .whereNull('deleted_at')
+      .if(urlQuery, (query) => {
+        const listWith = String(urlQuery?.with).split(',')
+
+        if (listWith.includes('roles')) {
+          query.preload('roles')
+        }
+        if (listWith.includes('modify')) {
+          query.preload('creator')
+            .preload('editor')
+            .preload('destroyer')
+        }
+      })
+      .first()
+
     if (!user) {
       throw new AuthenticationException(EXCEPTION_MESSAGE.E_ROW_NOT_FOUND, EXCEPTION_CODE.E_ROW_NOT_FOUND)
     }
-    return await User.findOrFail(id)
+
+    return user
   }
 
   public async store({ auth }: HttpContextContract, data: UserStoreValidationDto) {
     const authUser = auth.user!
+    const { roles, ...otherData } = data
     const user = new User()
-    user.fill(data)
-    user.createdBy = authUser.id
+    user.fill({
+      ...otherData,
+      createdBy: authUser.id
+    })
     await user.save()
+    await user.related('roles').sync(roles)
     return await this.find(user.id)
   }
 
   public async update({ auth, params }: HttpContextContract, data: UserUpdateValidationDto) {
     const authUser = auth.user!
     const user = await this.find(params.id)
+    const { roles, ...otherData } = data
     user.merge({
-      ...data,
+      ...otherData,
       updatedBy: authUser.id
     })
-    // user.name = data.name
-    // user.updatedBy = authUser.id
     await user.save()
+    await user.related('roles').sync(roles)
     return await this.find(user.id)
   }
 

@@ -5,12 +5,23 @@ import Permission from './Entities/Permission'
 export default class PermissionRepository {
   public async index({ request }: HttpContextContract) {
     const urlQuery = request.qs()
-    return await Permission
+    const page = urlQuery.page || 1
+    const limit = urlQuery.limit || 10
+    const permissions = Permission
       .query()
       .if(urlQuery.search, (query) => {
         query.where('name', 'ilike', `%${urlQuery.search}%`)
       })
       .orderBy('name', 'asc')
+
+    if (urlQuery.paginate == "false") {
+      return await permissions
+    }
+
+    const paginate = await permissions.paginate(page, limit)
+    paginate.baseUrl(request.url())
+    paginate.queryString(urlQuery)
+    return paginate
   }
 
   public async find(id: number) {
