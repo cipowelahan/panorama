@@ -1,4 +1,5 @@
 import Route from '@ioc:Adonis/Core/Route'
+import { USER_PERMISSION } from 'App/Constants/RolePermission'
 
 Route
   .group(() => {
@@ -25,7 +26,11 @@ Route
         .resource('users', 'UserController')
         .apiOnly()
         .middleware({
-          '*': ['auth']
+          'index': ['auth', `permissions:${USER_PERMISSION.LIST}`],
+          'store': ['auth', `permissions:${USER_PERMISSION.CREATE}`],
+          'show': ['auth', `permissions:${USER_PERMISSION.SHOW}`],
+          'update': ['auth', `permissions:${USER_PERMISSION.UPDATE}`],
+          'destroy': ['auth', `permissions:${USER_PERMISSION.DELETE}`],
         })
 
   })

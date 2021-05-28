@@ -1,9 +1,9 @@
-import { BaseModel, column, beforeSave, belongsTo, BelongsTo, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
-import { DateTime } from "luxon"
+import { column, beforeSave, manyToMany, ManyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Hash from '@ioc:Adonis/Core/Hash'
 import Role from 'App/Modules/Role/Repositories/Entities/Role'
+import BaseModify from './BaseModify'
 
-export default class User extends BaseModel {
+export default class User extends BaseModify {
   public static table = 'users'
 
   @column({ isPrimary: true, serialize: ((value) => Number(value)) })
@@ -26,33 +26,6 @@ export default class User extends BaseModel {
     pivotRelatedForeignKey: 'role_id'
   })
   public roles: ManyToMany<typeof Role>
-
-  @column({ serializeAs: null })
-  public createdBy: number
-
-  @column({ serializeAs: null })
-  public updatedBy: number
-
-  @column({ serializeAs: null })
-  public deletedBy: number
-
-  @belongsTo(() => User, { foreignKey: 'created_by' })
-  public creator: BelongsTo<typeof User>
-
-  @belongsTo(() => User, { foreignKey: 'updated_by' })
-  public editor: BelongsTo<typeof User>
-
-  @belongsTo(() => User, { foreignKey: 'deleted_by' })
-  public destroyer: BelongsTo<typeof User>
-
-  @column.dateTime({ autoCreate: true , serialize: (value) => { return value ? DateTime.fromISO(value).toFormat('yyyy-LL-dd HH:mm:ss') : value } })
-  public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true, serialize: (value) => { return value ? DateTime.fromISO(value).toFormat('yyyy-LL-dd HH:mm:ss') : value } })
-  public updatedAt: DateTime
-
-  @column.dateTime({ serialize: (value) => { return value ? DateTime.fromISO(value).toFormat('yyyy-LL-dd HH:mm:ss') : value } })
-  public deletedAt: DateTime
 
   @beforeSave()
   public static async hashPassword(user: User) {

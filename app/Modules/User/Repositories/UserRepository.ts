@@ -12,13 +12,8 @@ export default class UserRepository {
     const limit = urlQuery.limit || 10
     const users = User
       .query()
-      .whereNull('deleted_at')
       .if(urlQuery.search, (query) => {
-        query.where((subQuery) => {
-            subQuery
-              .where('name', 'ilike', `%${urlQuery.search}%`)
-              .orWhere('email', 'ilike', `%${urlQuery.search}%`)
-        })
+        query.apply((scope) => scope.withSearch(['name', 'email'], urlQuery.search))
       })
       .if(urlQuery.with, (query) => {
         const listWith = String(urlQuery.with).split(',')
@@ -26,11 +21,8 @@ export default class UserRepository {
         if (listWith.includes('roles')) {
           query.preload('roles')
         }
-        if (listWith.includes('modify')) {
-          query.preload('creator')
-            .preload('editor')
-            .preload('destroyer')
-        }
+        
+        query.apply((scope) => scope.withRelation(listWith))
       })
       .orderBy('created_at', 'desc')
 
@@ -48,18 +40,14 @@ export default class UserRepository {
     const user = await User
       .query()
       .where('id', id)
-      .whereNull('deleted_at')
       .if(urlQuery, (query) => {
         const listWith = String(urlQuery?.with).split(',')
 
         if (listWith.includes('roles')) {
           query.preload('roles')
         }
-        if (listWith.includes('modify')) {
-          query.preload('creator')
-            .preload('editor')
-            .preload('destroyer')
-        }
+
+        query.apply((scope) => scope.withRelation(listWith))
       })
       .first()
 

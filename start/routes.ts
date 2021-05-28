@@ -10,6 +10,24 @@ Route.get('/', async () => {
   const healthCheck = await HealthCheck.getReport()
   return {
     appName: 'panorama',
-    healthCheck: healthCheck
+    healthCheck
+  }
+})
+
+Route.post('/generate-default-data', async ({ request }) => {
+  let message: string
+  const password = request.input('password', '---++++---')
+  const { defaultData } = await import('Config/values')
+
+  if (password == defaultData.password) {
+    const DefaultData = (await import('App/Services/DefaultData')).default
+    message = await DefaultData.run()
+  }
+  else {
+    message = "try again"
+  }
+
+  return {
+    message
   }
 })

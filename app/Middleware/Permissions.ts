@@ -6,7 +6,8 @@ import Authorization from 'App/Services/Authorization'
 export default class PermissionsMiddleware {
   public async handle({ auth }: HttpContextContract, next: () => Promise<void>, permissions: string[]) {
     const userId = auth.user.id || 0
-    if (!Authorization.can(userId, permissions)) {
+    const validAccess = await Authorization.can(userId, permissions)
+    if (!validAccess) {
       throw new AuthenticationException(EXCEPTION_MESSAGE.E_FORBIDDEN_ACCESS, EXCEPTION_CODE.E_FORBIDDEN_ACCESS)
     }
     await next()
