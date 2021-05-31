@@ -45,6 +45,9 @@ export default class ExceptionHandler extends HttpExceptionHandler {
     else if (error.code === EXCEPTION_CODE.E_NOTACCAPTABLE_ACCESS) {
       return response.sendError([], EXCEPTION_MESSAGE.E_NOTACCAPTABLE_ACCESS, HTTP_CODE.FORBIDDEN)
     }
+    else if (error.code === EXCEPTION_CODE.E_INVALID_MODIFY_ROLE) {
+      return response.sendError([], EXCEPTION_MESSAGE.E_INVALID_MODIFY_ROLE, HTTP_CODE.NOT_ACCEPTABLE)
+    }
     else if (error.code === EXCEPTION_CODE.E_INVALID_AUTH_UID || error.code === EXCEPTION_CODE.E_INVALID_AUTH_PASSWORD) {
       return response.sendError([], EXCEPTION_MESSAGE.E_INVALID_AUTH_PASSWORD, HTTP_CODE.BAD_REQUEST)
     }

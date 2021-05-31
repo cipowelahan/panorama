@@ -1,7 +1,8 @@
 import {
   ROLE_DEFAULT,
   USER_PERMISSION,
-  ROLE_PERMISSION
+  ROLE_PERMISSION,
+  PERMISSION_PERMISSION
 } from 'App/Constants/RolePermission'
 
 import Permission from 'App/Modules/Role/Repositories/Entities/Permission'
@@ -21,6 +22,7 @@ class DefaultData {
 
     // HANDLE OTHER ROLE
     await this.handleRoleAdmin(permissions)
+    await this.handleRoleStaff(permissions)
 
     // DEFAULT USER
     const users = await User.first()
@@ -50,6 +52,11 @@ class DefaultData {
       syncId.push(rp)
     }
 
+    for (const permissionPermission of Object.values(PERMISSION_PERMISSION)) {
+      const rp = await Permission.firstOrCreate({ name: permissionPermission })
+      syncId.push(rp)
+    }
+
     return syncId
   }
 
@@ -64,8 +71,31 @@ class DefaultData {
     const userSync = filterUser.map((us) => us.id)
     permissionsSync.push(...userSync)
 
+    const rolePermissionPermission: Array<string> = []
+    for (const up of [ROLE_PERMISSION.LIST, ROLE_PERMISSION.SHOW, PERMISSION_PERMISSION.LIST, PERMISSION_PERMISSION.SHOW]) {
+      rolePermissionPermission.push(up)
+    }
+    const filterRolePermission = permissions.filter((permission) => rolePermissionPermission.includes(permission.name))
+    const rolePermissionSync = filterRolePermission.map((us) => us.id)
+    permissionsSync.push(...rolePermissionSync)
+
     const admin = await Role.findByOrFail('name', ROLE_DEFAULT.ADMIN)
     await admin.related('permissions').sync(permissionsSync)
+  }
+
+  private async handleRoleStaff(permissions: Permission[]) {
+    const permissionsSync: Array<number> = []
+
+    const rolePermissionPermission: Array<string> = []
+    for (const up of [ROLE_PERMISSION.LIST, ROLE_PERMISSION.SHOW, PERMISSION_PERMISSION.LIST, PERMISSION_PERMISSION.SHOW]) {
+      rolePermissionPermission.push(up)
+    }
+    const filterRolePermission = permissions.filter((permission) => rolePermissionPermission.includes(permission.name))
+    const rolePermissionSync = filterRolePermission.map((us) => us.id)
+    permissionsSync.push(...rolePermissionSync)
+
+    const staff = await Role.findByOrFail('name', ROLE_DEFAULT.STAFF)
+    await staff.related('permissions').sync(permissionsSync)
   }
 }
 

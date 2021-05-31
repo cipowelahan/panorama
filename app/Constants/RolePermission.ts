@@ -12,6 +12,14 @@ export enum ROLE_PERMISSION {
   DELETE = "role.delete"
 }
 
+export enum PERMISSION_PERMISSION {
+  LIST = "permission.list",
+  SHOW = "permission.show",
+  CREATE = "permission.create",
+  UPDATE = "permission.update",
+  DELETE = "permission.delete"
+}
+
 export enum USER_PERMISSION {
   LIST = "user.list",
   ALL = "user.all",
