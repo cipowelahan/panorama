@@ -10,22 +10,22 @@ export default class Roles extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableNameRole, (table) => {
       table.increments('id')
-      table.string('name').unique()
+      table.string('name').notNullable().unique()
     })
 
     this.schema.createTable(this.tableNamePermission, (table) => {
       table.increments('id')
-      table.string('name').unique()
+      table.string('name').notNullable().unique()
     })
 
     this.schema.createTable(this.tableNameRoleUser, (table) => {
-      table.bigInteger('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
-      table.integer('role_id').unsigned().references('id').inTable(this.tableNameRole).onDelete('CASCADE')
+      table.bigInteger('user_id').notNullable().unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.integer('role_id').notNullable().unsigned().references('id').inTable(this.tableNameRole).onDelete('CASCADE')
     })
 
     this.schema.createTable(this.tableNameRolePermission, (table) => {
-      table.integer('role_id').unsigned().references('id').inTable(this.tableNameRole).onDelete('CASCADE')
-      table.integer('permission_id').unsigned().references('id').inTable(this.tableNamePermission).onDelete('CASCADE')
+      table.integer('role_id').notNullable().unsigned().references('id').inTable(this.tableNameRole).onDelete('CASCADE')
+      table.integer('permission_id').notNullable().unsigned().references('id').inTable(this.tableNamePermission).onDelete('CASCADE')
     })
   }
 
